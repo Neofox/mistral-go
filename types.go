@@ -5,16 +5,19 @@ const (
 	ModelMistralMediumLatest = "mistral-medium-latest"
 	ModelMistralSmallLatest  = "mistral-small-latest"
 	ModelCodestralLatest     = "codestral-latest"
-	
-	ModelOpenMixtral8x7b     = "open-mixtral-8x7b"
-	ModelOpenMixtral8x22b    = "open-mixtral-8x22b"
-	ModelOpenMistral7b       = "open-mistral-7b"
+
+	ModelOpenMixtral8x7b  = "open-mixtral-8x7b"
+	ModelOpenMixtral8x22b = "open-mixtral-8x22b"
+	ModelOpenMistral7b    = "open-mistral-7b"
 
 	ModelMistralLarge2402  = "mistral-large-2402"
 	ModelMistralMedium2312 = "mistral-medium-2312"
 	ModelMistralSmall2402  = "mistral-small-2402"
 	ModelMistralSmall2312  = "mistral-small-2312"
 	ModelMistralTiny       = "mistral-tiny-2312"
+
+	ModelPixtral12b         = "pixtral-12b-2409"
+	ModelPixtralLargeLatest = "pixtral-large-latest"
 )
 
 const (
@@ -46,6 +49,14 @@ type ToolType string
 
 const (
 	ToolTypeFunction ToolType = "function"
+)
+
+// ContentPartType type of content part for a ChatMessage
+type ContentPartType string
+
+const (
+	ContentPartText  ContentPartType = "text"
+	ContentPartImage ContentPartType = "image_url"
 )
 
 const (
@@ -88,8 +99,17 @@ type DeltaMessage struct {
 }
 
 // ChatMessage represents a single message in a chat.
+// Content can be a string or an array of ContentPart
 type ChatMessage struct {
 	Role      string     `json:"role"`
-	Content   string     `json:"content"`
+	Content   any        `json:"content"`
 	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
+}
+
+// ContentPart represents a single part of a message.
+// It can be a string or an image url
+type ContentPart struct {
+	Type     ContentPartType `json:"type"`
+	Text     string          `json:"text,omitempty"`
+	ImageUrl string          `json:"image_url,omitempty"`
 }

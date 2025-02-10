@@ -31,9 +31,9 @@ var DefaultChatRequestParams = ChatRequestParams{
 
 // ChatCompletionResponseChoice represents a choice in the chat completion response.
 type ChatCompletionResponseChoice struct {
-	Index        int          `json:"index"`
-	Message      ChatMessage  `json:"message"`
-	FinishReason FinishReason `json:"finish_reason,omitempty"`
+	Index        int                   `json:"index"`
+	Message      ChatCompletionMessage `json:"message"`
+	FinishReason FinishReason          `json:"finish_reason,omitempty"`
 }
 
 // ChatCompletionResponseChoice represents a choice in the chat completion response.
@@ -62,6 +62,14 @@ type ChatCompletionStreamResponse struct {
 	Object  string                               `json:"object,omitempty"`
 	Usage   UsageInfo                            `json:"usage,omitempty"`
 	Error   error                                `json:"error,omitempty"`
+}
+
+// ChatCompletionMessage represents a message in a chat completion.
+// Unlike a regular ChatMessage, this message always has a string content.
+type ChatCompletionMessage struct {
+	Role      string     `json:"role"`
+	Content   string     `json:"content"`
+	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
 }
 
 // UsageInfo represents the usage information of a response.

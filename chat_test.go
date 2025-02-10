@@ -1,10 +1,15 @@
 package mistral
 
 import (
+	_ "embed"
+	"encoding/base64"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+//go:embed test.png
+var image []byte
 
 func TestChat(t *testing.T) {
 	client := NewMistralClientDefault("")
@@ -28,6 +33,74 @@ func TestChat(t *testing.T) {
 	assert.Greater(t, len(res.Choices[0].Message.Content), 0)
 	assert.Equal(t, res.Choices[0].Message.Role, RoleAssistant)
 	assert.Equal(t, res.Choices[0].Message.Content, "Test Succeeded")
+}
+
+func TestChatWithMultiPartMessage(t *testing.T) {
+	client := NewMistralClientDefault("")
+	params := DefaultChatRequestParams
+	params.MaxTokens = 10
+	params.Temperature = 0
+	res, err := client.Chat(
+		ModelMistralTiny,
+		[]ChatMessage{
+			{
+				Role: RoleUser,
+				Content: []ContentPart{
+					{
+						Type: ContentPartText,
+						Text: "You are in test mode.",
+					},
+					{
+						Type: ContentPartText,
+						Text: "You must reply to this with exactly and only `Test Succeeded`",
+					},
+				},
+			},
+		},
+		&params,
+	)
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+
+	assert.Greater(t, len(res.Choices), 0)
+	assert.Greater(t, len(res.Choices[0].Message.Content), 0)
+	assert.Equal(t, res.Choices[0].Message.Role, RoleAssistant)
+	assert.Equal(t, res.Choices[0].Message.Content, "Test Succeeded")
+}
+
+func TestChatWithMultiPartImageMessage(t *testing.T) {
+	base64Image := base64.StdEncoding.EncodeToString(image)
+
+	client := NewMistralClientDefault("")
+	params := DefaultChatRequestParams
+	params.MaxTokens = 10
+	params.Temperature = 0
+
+	res, err := client.Chat(
+		ModelPixtral12b,
+		[]ChatMessage{
+			{
+				Role: RoleUser,
+				Content: []ContentPart{
+					{
+						Type: ContentPartText,
+						Text: "You are in test mode and must reply with the content of the string in the box",
+					},
+					{
+						Type:     ContentPartImage,
+						ImageUrl: "data:image/png;base64," + base64Image,
+					},
+				},
+			},
+		},
+		&params,
+	)
+	assert.NoError(t, err)
+	assert.NotNil(t, res)
+
+	assert.Greater(t, len(res.Choices), 0)
+	assert.Greater(t, len(res.Choices[0].Message.Content), 0)
+	assert.Equal(t, res.Choices[0].Message.Role, RoleAssistant)
 }
 
 func TestChatCodestral(t *testing.T) {
